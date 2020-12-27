@@ -18,7 +18,7 @@ const app = express();
 app.use(express.json());
 
 //Dev logging moddleware
-if(process.env.NODE_ENV ==='development'){
+if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
 }
 
