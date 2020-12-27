@@ -102,4 +102,11 @@ const BootcampSchema = new mongoose.Schema({
     }
 });
 
+//Slugs
+BootcampSchema.pre('save', function(next){
+    //console.log('Slug ran', this.name); //prints also the name-property of the inserted document
+    this.slug = slugify(this.name, { lower: true });
+    next();
+});
+
 module.exports = mongoose.model('Bootcamp', BootcampSchema);
