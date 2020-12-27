@@ -1,4 +1,5 @@
 const Bootcamp = require('../models/Bootcamp');
+const ErrorResponse = require('../utils/errorResponse');
 
 // @desc    Get all bootcamps
 // @route   GET /api/v1/bootcamps
@@ -6,14 +7,18 @@ const Bootcamp = require('../models/Bootcamp');
 exports.getBootcamps = async (req, res, next) => {
     try {
         const data = await Bootcamp.find();
+
+        if(!data){ //gets triggered if correct format but data doesnt exist
+            return next(new ErrorResponse(404, 'Sorry, this Resource doesnt exist..'));  
+        }
+
         res.status(200).json({
             success: true,
+            count: data.length,
             data: data
         });
     } catch (err) {
-        res.status(400).json({
-            success: false
-        });
+        next(err);
     }
 }
 
@@ -23,14 +28,15 @@ exports.getBootcamps = async (req, res, next) => {
 exports.getBootcamp = async (req, res, next) => {
     try {
         const data = await Bootcamp.findById(req.params.id);
+        if(!data){ //gets triggered if correct format but data doesnt exist
+            return next(new ErrorResponse(404, 'Sorry, this Resource doesnt exist..'));  
+        }
         res.status(200).json({
             success: true,
             data: data
         });
-    } catch (err) {
-        res.status(400).json({
-            success: false
-        });
+    } catch (err) { //Only gets triggered if wrong format
+        next(err);
     }
 }
 
@@ -46,11 +52,7 @@ exports.createBootcamp = async (req, res, next) => {
             data: data
         });   
     } catch (err) {
-        res.status(400).json({
-            success: false,
-            data: null
-        });
-        console.log(err);
+        next(err);
     }
 };
 
@@ -58,19 +60,24 @@ exports.createBootcamp = async (req, res, next) => {
 // @route   PUT /api/v1/bootcamps/:id
 // @access  Private
 exports.updateBootcamp = async (req, res, next) => {
-    const data = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    });
-
-    if(!Bootcamp) {
-        return res.status(400).json({success: flase});
+    
+    try {
+        const data = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
+    
+        if(!data){ //gets triggered if correct format but data doesnt exist
+            return next(new ErrorResponse(404, 'Sorry, this Resource doesnt exist..'));  
+        }
+    
+        res.status(200).json({
+            success: true,
+            data: data
+        });
+    } catch (err) {
+        next(err);
     }
-
-    res.status(200).json({
-        success: true,
-        data: data
-    });
 }
 
 // @desc    Delete a bootcamp
@@ -80,14 +87,14 @@ exports.deleteBootcamp = async (req, res, next) => {
     try {
         const data = await Bootcamp.findByIdAndUpdate(req.params.id);
 
-        if(!data) {
-            return res.status(400).json({success: false});
-        } 
+        if(!data){ //gets triggered if correct format but data doesnt exist
+            return next(new ErrorResponse(404, 'Sorry, this Resource doesnt exist..'));  
+        }
         res.status(200).json({
             success: true,
             data: {}
         });
     } catch (err) {
-        res.status(400).json({success: false});
+        next(err);
     } 
 }
